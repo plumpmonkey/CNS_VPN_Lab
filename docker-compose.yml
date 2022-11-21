@@ -4,7 +4,7 @@ services:
     build: ./VPN_ubuntu
     image:  vpn_server
     container_name: vpn_server-192.168.159.20
-    hostname: vpn_server-192.168.159.20
+    hostname: vpn_server
     tty: true
     cap_add:
       - ALL
@@ -14,15 +14,15 @@ services:
       net-192.168.159.0:
         ipv4_address: 192.168.159.20
       net-172.16.50.0:
-        ipv4_address: 172.16.50.1
+        ipv4_address: 172.16.50.20
     volumes:
-      - ./server_scripts:/scripts
+      - ./scripts:/media/scripts
   
   VPN_Client:
     build: ./VPN_ubuntu
     image:  vpn_client
     container_name: vpn_client-192.168.159.10
-    hostname: vpn_client-192.168.159.10
+    hostname: vpn_client
     tty: true
     cap_add:
       - ALL
@@ -32,9 +32,19 @@ services:
       net-192.168.159.0:
         ipv4_address: 192.168.159.10
     volumes:
-      - ./client_scripts:/scripts
+      - ./scripts:/media/scripts
 
-      
+  Host:
+    build: ./VPN_ubuntu
+    image:  host
+    container_name: host-172.16.50.10
+    hostname: host
+    tty: true
+    cap_add:
+      - ALL
+    networks:
+      net-172.16.50.0:
+        ipv4_address: 172.16.50.10
   
 networks:
   net-192.168.159.0:

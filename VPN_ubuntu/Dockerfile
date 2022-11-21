@@ -9,7 +9,7 @@ RUN apt update \
     iputils-ping \
     net-tools \
     iptables \
-    python3.10 \
+    python3 \
     telnet \
     telnetd \
     netcat \
@@ -18,3 +18,9 @@ RUN apt update \
 
 # Create the "uwe" user account
 RUN useradd -m -s /bin/bash -p "$(openssl passwd -1 uwe)" uwe 
+
+COPY get-pip.py /tmp
+
+RUN  python3 /tmp/get-pip.py \
+     && pip3 install scapy \
+     && rm /tmp/get-pip.py
