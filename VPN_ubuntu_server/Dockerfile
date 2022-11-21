@@ -16,11 +16,10 @@ RUN apt update \
     dnsutils \
     curl
 
-# Create the "uwe" user account
-RUN useradd -m -s /bin/bash -p "$(openssl passwd -1 uwe)" uwe 
-
 COPY get-pip.py /tmp
 
 RUN  python3 /tmp/get-pip.py \
      && pip3 install scapy \
      && rm /tmp/get-pip.py
+
+COPY 99-forward.conf /etc/sysctl.d/
