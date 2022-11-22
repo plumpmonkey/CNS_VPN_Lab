@@ -28,13 +28,26 @@ os.system("ip route add 172.16.50.0/24 dev {}".format(ifname))
 # Create UDP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
+# We assume that sock and tun file descriptors have already been created. 
 while True:
-   # Get a packet from the tun interface
-   data = os.read(tun, 2048)
+  # this will block until at least one interface is ready
+  ready, _, _ = select.select([sock, tun], [], [])
 
-   if Ether in Ether(data):
-      pkt = IP(data)
-      print(pkt.summary())
+  for fd in ready:
+    if fd is sock:
+       # Read the data from the port and correctly set the 
+       # ip and port variables based on the incoming values
+       data, (ip, port) = sock.recvfrom(2048)
+       pkt = IP(data)
+       print("From socket <==: {} --> {}".format(pkt.src, pkt.dst))
+       # Write the data to the tun device
+       os.write(tun, data)
 
-      # Send the packet via the tunnel
-      sock.sendto(data, ("192.168.159.20", 9090))
+    if fd is tun:
+       data = os.read(tun, 2048)
+       pkt = IP(data)
+       print("From tun    ==>: {} --> {}".format(pkt.src, pkt.dst))
+       # Send the data to the server ip and port
+       sock.sendto(data, ("192.168.40.20", 9090))
+
+

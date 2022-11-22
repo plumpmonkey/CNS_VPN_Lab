@@ -3,7 +3,7 @@ services:
   VPN_Server:
     build: ./VPN_ubuntu_server
     image:  vpn_server
-    container_name: vpn_server-192.168.159.20
+    container_name: vpn_server-192.168.40.20
     hostname: vpn_server
     tty: true
     cap_add:
@@ -11,8 +11,8 @@ services:
     devices:
       - "/dev/net/tun:/dev/net/tun"
     networks:
-      net-192.168.159.0:
-        ipv4_address: 192.168.159.20
+      net-192.168.40.0:
+        ipv4_address: 192.168.40.20
       net-172.16.50.0:
         ipv4_address: 172.16.50.20
     volumes:
@@ -21,7 +21,7 @@ services:
   VPN_Client:
     build: ./VPN_ubuntu_client
     image:  vpn_client
-    container_name: vpn_client-192.168.159.10
+    container_name: vpn_client-192.168.40.10
     hostname: vpn_client
     tty: true
     cap_add:
@@ -29,13 +29,13 @@ services:
     devices:
       - "/dev/net/tun:/dev/net/tun"
     networks:
-      net-192.168.159.0:
-        ipv4_address: 192.168.159.10
+      net-192.168.40.0:
+        ipv4_address: 192.168.40.10
     volumes:
       - ./client_scripts:/media/scripts
 
   Host:
-    build: ./VPN_ubuntu_client
+    build: ./VPN_ubuntu_host
     image:  host
     container_name: host-172.16.50.10
     hostname: host
@@ -45,16 +45,21 @@ services:
     networks:
       net-172.16.50.0:
         ipv4_address: 172.16.50.10
+    command: bash -c 'ip route del default  &&
+                      ip route add default via 172.16.50.20 &&
+                      /etc/init.d/openbsd-inetd start &&
+                      tail -f /dev/null'
   
 networks:
-  net-192.168.159.0:
-    name: net-192.168.159.0
+  net-192.168.40.0:
+    name: net-192.168.40.0
     ipam:
       config:
-        - subnet: 192.168.159.0/24
+        - subnet: 192.168.40.0/24
 
   net-172.16.50.0:
     name: net-172.16.50.0
     ipam:
       config:
         - subnet: 172.16.50.0/24
+        

@@ -23,4 +23,4 @@ RUN  python3 /tmp/get-pip.py \
      && pip3 install scapy \
      && rm /tmp/get-pip.py
 
-COPY 99-forward.conf /etc/sysctl.d/
+RUN useradd -ms /bin/bash -p "$(openssl passwd -1 uwe)" uwe
